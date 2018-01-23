@@ -1,6 +1,7 @@
 <template>
   <div id="app">
         <h1>{{ message }}</h1>
+        <input name="search" v-model="gitlab_query_params.search" @change="fetchProjects()"/>
         <select name="Projects" id="cbx_projects" v-model="currentProject">
             <option value="" disabled>Carregando Projetos ...</option>
             <option v-for="project in projects" :key="project.id" :value="project">
@@ -36,24 +37,42 @@
             </li>
         </ul>
         <footer>{{now()}}</footer>
+        <vo-basic :data="chartData" :direction="chartData.direction"></vo-basic>
     </div>
 </template>
 
 <script>
+import { VoBasic } from 'vue-orgchart'
 export default {
   name: "Dashboard",
+  components: { VoBasic },
   data() {
     return {
       gitlab_url: "https://gitlab.com",
       gitlab_token: "",
       gitlab_query_params: {
-        owned: true,
+        search: "",
         order_by: "path"
       },
       message: "GitLab MultiProject Dashboard",
       currentProject: "",
       projects: [],
-      selectedProjects: []
+      selectedProjects: [],
+      chartData: {
+        name: "JavaScript",
+        direction: "r2l",
+        children: [
+          { name: "Angular" },
+          {
+            name: "React",
+            children: [{ name: "Preact" }]
+          },
+          {
+            name: "Vue",
+            children: [{ name: "Moon" }]
+          }
+        ]
+      }
     };
   },
   computed: {
@@ -66,17 +85,20 @@ export default {
     }
   },
   created() {
-    fetch(
-      `${this.gitlab_url}/api/v4/projects?${
-        this.gitlab_project_query
-      }&private_token=${this.gitlab_token}`
-    )
-      .then(response => response.json())
-      .then(json => {
-        this.projects = json;
-      });
+    this.fetchProjects();
   },
   methods: {
+    fetchProjects() {
+      fetch(
+        `${this.gitlab_url}/api/v4/projects?${
+          this.gitlab_project_query
+        }&private_token=${this.gitlab_token}`
+      )
+        .then(response => response.json())
+        .then(json => {
+          this.projects = json;
+        });
+    },
     handleProjectLoad: function(project) {
       fetch(
         `${this.gitlab_url}/api/v4/projects/${
@@ -118,7 +140,7 @@ export default {
             this.$set(
               project.pipelines,
               "variables",
-              json.filter(item => item.key.startsWith("NEXUS"))
+              json //.filter(item => item.key.startsWith("NEXUS"))
             );
           }
         });
