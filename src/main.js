@@ -3,8 +3,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import 'vue-orgchart/dist/style.css'
-// import 'orgchart.js/src/orgchart.css'
+// import 'vue-orgchart/dist/style.css'
+import 'orgchart.js/src/orgchart.css'
 
 Vue.config.productionTip = false
 

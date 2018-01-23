@@ -37,12 +37,12 @@
             </li>
         </ul>
         <footer>{{now()}}</footer>
-        <vo-basic :data="chartData" :direction="chartData.direction"></vo-basic>
+        <vo-basic :data="chartData" :direction="'l2r'" :toggleCollapse="false"></vo-basic>
     </div>
 </template>
 
 <script>
-import { VoBasic } from 'vue-orgchart'
+import { VoBasic } from "vue-orgchart";
 export default {
   name: "Dashboard",
   components: { VoBasic },
@@ -59,17 +59,18 @@ export default {
       projects: [],
       selectedProjects: [],
       chartData: {
-        name: "JavaScript",
-        direction: "r2l",
+        name: "maven-parent",
         children: [
-          { name: "Angular" },
+          { name: "externo/client-sms-celepar" },
           {
-            name: "React",
-            children: [{ name: "Preact" }]
-          },
-          {
-            name: "Vue",
-            children: [{ name: "Moon" }]
+            name: "externo/client-cns-betim",
+            children: [
+              { name: "framework/commons" },
+              {
+                name: "framework/resources",
+                children: [{ name: "Moon" }]
+              }
+            ]
           }
         ]
       }
