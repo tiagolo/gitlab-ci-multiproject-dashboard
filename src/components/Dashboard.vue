@@ -16,19 +16,19 @@
                     <div v-if="project.pipelines">
                         <span v-if="project.pipelines.branches">Branches</span>
                         <ul>
-                            <li v-for="pipeline in project.pipelines.branches">
+                            <li v-for="pipeline in project.pipelines.branches" :key="pipeline.id">
                                 {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
                             </li>
                         </ul>
                         <span v-if="project.pipelines.tags">Tags</span>
                         <ul>
-                            <li v-for="pipeline in project.pipelines.tags">
+                            <li v-for="pipeline in project.pipelines.tags" :key="pipeline.id">
                                 {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
                             </li>
                         </ul>
                         <span v-if="project.pipelines.variables">Variables</span>
                         <ul>
-                            <li v-for="variable in project.pipelines.variables">
+                            <li v-for="variable in project.pipelines.variables" :key="variable.id">
                                 {{ variable.key }} - {{ variable.value }}
                             </li>
                         </ul>
@@ -37,15 +37,12 @@
             </li>
         </ul>
         <footer>{{now()}}</footer>
-        <vo-basic :data="chartData" :direction="'l2r'" :toggleCollapse="false"></vo-basic>
     </div>
 </template>
 
 <script>
-import { VoBasic } from "vue-orgchart";
 export default {
   name: "Dashboard",
-  components: { VoBasic },
   data() {
     return {
       gitlab_url: "https://gitlab.com",
@@ -57,23 +54,7 @@ export default {
       message: "GitLab MultiProject Dashboard",
       currentProject: "",
       projects: [],
-      selectedProjects: [],
-      chartData: {
-        name: "maven-parent",
-        children: [
-          { name: "externo/client-sms-celepar" },
-          {
-            name: "externo/client-cns-betim",
-            children: [
-              { name: "framework/commons" },
-              {
-                name: "framework/resources",
-                children: [{ name: "Moon" }]
-              }
-            ]
-          }
-        ]
-      }
+      selectedProjects: []
     };
   },
   computed: {
