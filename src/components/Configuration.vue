@@ -1,27 +1,47 @@
 <template>
-    <v-dialog v-model="settings" max-width="500px">
-        <v-card>
-            <v-card-title>
-                Dialog 2
-            </v-card-title>
-            <v-card-text>
-                <v-select
-                        :items="select"
-                        label="A Select List"
-                        item-value="text"
-                ></v-select>
-            </v-card-text>
-            <v-card-actions>
-                <v-btn color="primary" flat @click.stop="settings=false">Close</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+  <v-dialog v-model="settings" max-width="500px">
+    <v-card>
+      <v-card-title>
+        Configuration
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+          label="Gitlab URL"
+          :value="gitlab_url" >
+        </v-text-field>
+        <v-text-field
+          password
+          label="Gitlab TOKEN"
+          :value="gitlab_token"
+          :append-icon="e1 ? 'visibility' : 'visibility_off'"
+          :append-icon-cb="() => (e1 = !e1)"
+          :type="e1 ? 'password' : 'text'"
+          counter >
+        </v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" flat @click.stop="settings=false">Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
+
 <script>
-    export default {
-        name: 'Configuration',
-        props: {
-            settings: {}
-        }
+import { mapGetters } from 'vuex';
+
+export default {
+  name: 'Configuration',
+  props: {
+    settings: {},
+  },
+  data() {
+    return {
+      e1: true,
     };
+  },
+  computed: mapGetters({
+    gitlab_url: 'gitlab_url',
+    gitlab_token: 'gitlab_token',
+  }),
+};
 </script>
