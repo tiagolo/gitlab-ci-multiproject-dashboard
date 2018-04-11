@@ -10,7 +10,7 @@
             <v-form v-on:submit.prevent="onSubmit">
               <v-text-field id="search" name="search" label="Search"
                             v-model="gitlab_query_params.search"
-                            @change="fetchProjects()"></v-text-field>
+                            @input="fetchProjects()"></v-text-field>
               <v-layout row wrap>
                 <v-flex xs6>
                   <v-select single-line
@@ -42,41 +42,50 @@
             <h3>Select Projects</h3>
           </v-card-title>
           <v-card-text>
-            <v-list three-line>
-              <v-list-tile v-for="project in selectedProjects" :key="project.id">
-                <v-list-tile-content>
-                  <v-list-tile-title>
-                    {{ project.id }} - {{ project.name_with_namespace }}
-                  </v-list-tile-title>
-                  <v-list-tile-sub-title>
+            <v-list>
+              <template v-for="project in selectedProjects">
+                <v-list-tile :key="project.id">
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{ project.id }} - {{ project.name_with_namespace }}
+                    </v-list-tile-title>
                     <div v-if="project.pipelines">
-                      <span v-if="project.pipelines.branches">Branches</span>
-                      <template v-for="pipeline in project.pipelines.branches">
-                        <v-chip>
-                          {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
-                        </v-chip>
-                      </template>
-                      <span v-if="project.pipelines.tags">Tags</span>
-                      <ul>
-                        <li v-for="pipeline in project.pipelines.tags" :key="pipeline.id">
-                          {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
-                        </li>
-                      </ul>
-                      <span v-if="project.pipelines.variables">Variables</span>
-                      <ul>
-                        <li v-for="variable in project.pipelines.variables" :key="variable.id">
-                          {{ variable.key }} - {{ variable.value }}
-                        </li>
-                      </ul>
+                      <v-list-tile-sub-title>
+                        <span v-if="project.pipelines.branches">Branches</span>
+                        <template v-for="pipeline in project.pipelines.branches">
+                          <v-chip :key="pipeline.id">
+                            <PipelineStatus :pipeline="pipeline"/>
+                            {{ pipeline.ref }}
+                          </v-chip>
+                        </template>
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
+                        <span v-if="project.pipelines.tags">Tags</span>
+                        <template v-for="pipeline in project.pipelines.tags">
+                          <v-chip :key="pipeline.id">
+                            <PipelineStatus :pipeline="pipeline"/>
+                            {{ pipeline.ref }}
+                          </v-chip>
+                        </template>
+                      </v-list-tile-sub-title>
+                      <!--
+                                          <span v-if="project.pipelines.variables">Variables</span>
+                                          <ul>
+                                            <li v-for="variable in project.pipelines.variables" :key="variable.id">
+                                              {{ variable.key }} - {{ variable.value }}
+                                            </li>
+                                          </ul>
+                      -->
                     </div>
-                  </v-list-tile-sub-title>
-                </v-list-tile-content>
-                <v-list-tile-action>
-                  <v-btn @click="handleRemoveProject(project)" icon flat ripple color="error">
-                    <v-icon>delete</v-icon>
-                  </v-btn>
-                </v-list-tile-action>
-              </v-list-tile>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-btn @click="handleRemoveProject(project)" icon flat ripple color="error">
+                      <v-icon>delete</v-icon>
+                    </v-btn>
+                  </v-list-tile-action>
+                </v-list-tile>
+                <v-divider></v-divider>
+              </template>
             </v-list>
           </v-card-text>
         </v-card>
@@ -86,8 +95,11 @@
 </template>
 
 <script>
+import PipelineStatus from './utility/PipelineStatus';
+
 export default {
   name: 'Dashboard',
+  components: { PipelineStatus },
   data() {
     return {
       gitlab_query_params: {
@@ -230,5 +242,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+  .list__tile {
+    height: 100% !important;
+    padding: 1em;
+  }
 </style>
