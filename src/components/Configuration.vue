@@ -7,7 +7,8 @@
       <v-card-text>
         <v-text-field
           label="Gitlab URL"
-          :value="gitlab_url" >
+          :value="gitlab_url"
+          @input="setGitlabUrl">
         </v-text-field>
         <v-text-field
           password
@@ -27,7 +28,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Configuration',
@@ -43,5 +44,8 @@ export default {
     gitlab_url: 'gitlab_url',
     gitlab_token: 'gitlab_token',
   }),
+  methods: mapMutations([
+    'setGitlabUrl',
+  ]),
 };
 </script>
