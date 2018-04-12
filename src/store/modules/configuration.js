@@ -1,6 +1,6 @@
 const state = {
   gitlab_url: 'https://gitlab.com',
-  gitlab_token: 'jupaPqZjhbGo59Bk91ig',
+  gitlab_token: '',
 };
 
 const getters = {

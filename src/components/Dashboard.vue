@@ -21,11 +21,6 @@
                             :items="projects"
                             item-text="name_with_namespace"
                             v-model="currentProject">
-                    <template slot="item" slot-scope="data">
-                      <v-list-tile-content>
-                        {{data.item.namespace.full_path}}/{{data.item.name}}
-                      </v-list-tile-content>
-                    </template>
                   </v-select>
                 </v-flex>
                 <v-flex xs6>
@@ -108,7 +103,7 @@ export default {
       },
       message: 'GitLab MultiProject Dashboard',
       currentProject: '',
-      projects: null,
+      projects: [{ name_with_namespace: '' }],
       selectedProjects: [],
       name: '',
       email: '',
