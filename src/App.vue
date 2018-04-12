@@ -9,7 +9,7 @@
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title> GitLab Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click.stop="settings = !settings">
+      <v-btn icon @click="settings = !settings">
         <v-icon>settings</v-icon>
       </v-btn>
     </v-toolbar>

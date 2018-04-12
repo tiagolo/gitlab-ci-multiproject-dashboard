@@ -7,23 +7,24 @@
             <h1>{{ message }} - {{ gitlab_url }}</h1>
           </v-card-title>
           <v-card-text>
-            <v-form v-on:submit.prevent="onSubmit">
-              <v-text-field id="search" name="search" label="Search"
-                            v-model="gitlab_query_params.search"
-                            @input="fetchProjects()"></v-text-field>
+            <v-form @submit.prevent="handleSelectProject">
               <v-layout row wrap>
-                <v-flex xs6>
+                <v-flex xs10>
                   <v-select single-line
                             autocomplete
-                            label="Select"
-                            no-data-text="Configure a conexão corretamente"
+                            clearable
                             name="Projects"
-                            :items="projects"
+                            label="Select"
                             item-text="name_with_namespace"
+                            no-data-text="Sem registros encontrados ..."
+                            :items="projects"
+                            :loading="loading"
+                            :search-input.sync="search"
+                            @keyup.enter.native="handleSelectProject"
                             v-model="currentProject">
                   </v-select>
                 </v-flex>
-                <v-flex xs6>
+                <v-flex xs2>
                   <v-btn @click="handleSelectProject">Get Pipelines</v-btn>
                 </v-flex>
               </v-layout>
@@ -104,9 +105,11 @@ export default {
       message: 'GitLab MultiProject Dashboard',
       currentProject: '',
       projects: [{ name_with_namespace: '' }],
+      search: '',
       selectedProjects: [],
       name: '',
       email: '',
+      loading: false,
       select: null,
       items: [
         'Item 1',
@@ -163,7 +166,7 @@ export default {
       this.checkbox = null;
       this.$validator.reset();
     },
-    // //////
+    // API Fetch
     fetchProjects() {
       fetch(
         `${this.gitlab_url}/api/v4/projects?${
@@ -230,6 +233,11 @@ export default {
     },
   },
   watch: {
+    search(val) {
+      if (val) this.gitlab_query_params.search = val
+      this.fetchProjects();
+      console.log("Watcher Fetching projects");
+    },
     selectedProjects(val) {
       val.forEach(project => this.handleProjectLoad(project));
     },
