@@ -9,8 +9,11 @@ const getters = {
 };
 
 const mutations = {
-  setGitlabUrl(state, url) {
+  set_gitlab_url(state, url) {
     state.gitlab_url = url;
+  },
+  set_gitlab_token(state, token) {
+    state.gitlab_token = token;
   },
 };
 

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="settings" max-width="500px">
+  <v-dialog persistent v-model="openSettings" max-width="500px">
     <v-card>
       <v-card-title>
         Configuration
@@ -7,21 +7,22 @@
       <v-card-text>
         <v-text-field
           label="Gitlab URL"
-          :value="gitlab_url"
-          @input="setGitlabUrl">
+          @input="set_gitlab_url"
+          :value="gitlab_url">
         </v-text-field>
         <v-text-field
           password
+          counter
           label="Gitlab TOKEN"
+          @input="set_gitlab_token"
           :value="gitlab_token"
           :append-icon="e1 ? 'visibility' : 'visibility_off'"
           :append-icon-cb="() => (e1 = !e1)"
-          :type="e1 ? 'password' : 'text'"
-          counter >
+          :type="e1 ? 'password' : 'text'">
         </v-text-field>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" flat @click.stop="settings=false">Close</v-btn>
+        <v-btn color="primary" flat @click="settings=false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -40,12 +41,18 @@ export default {
       e1: true,
     };
   },
-  computed: mapGetters({
-    gitlab_url: 'gitlab_url',
-    gitlab_token: 'gitlab_token',
-  }),
+  computed: {
+    openSettings() {
+      return this.settings || !this.gitlab_url || !this.gitlab_token;
+    },
+    ...mapGetters([
+      'gitlab_url',
+      'gitlab_token',
+    ]),
+  },
   methods: mapMutations([
-    'setGitlabUrl',
+    'set_gitlab_url',
+    'set_gitlab_token',
   ]),
 };
 </script>
