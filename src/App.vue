@@ -7,7 +7,7 @@
     <v-toolbar color="purple darken-3" dark app
                :clipped-left="$vuetify.breakpoint.lgAndUp" fixed>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title> GitLab Dashboard</v-toolbar-title>
+      <v-toolbar-title>GitLab Dashboard - {{ this.$store.state.configuration.gitlab_url }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="settings = !settings">
         <v-icon>settings</v-icon>
