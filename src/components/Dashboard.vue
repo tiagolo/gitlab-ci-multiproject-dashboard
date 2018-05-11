@@ -1,70 +1,173 @@
 <template>
-  <div id="app">
-        <h1>{{ message }}</h1>
-        <input name="search" v-model="gitlab_query_params.search" @change="fetchProjects()"/>
-        <select name="Projects" id="cbx_projects" v-model="currentProject">
-            <option value="" disabled>Carregando Projetos ...</option>
-            <option v-for="project in projects" :key="project.id" :value="project">
-                {{project.namespace.full_path}}/{{project.name}}
-            </option>
-        </select>
-        <button @click="handleSelectProject">Get Pipelines</button>
-        <ul>
-            <li v-for="project in selectedProjects" :key="project.id">
-                {{ project.id }} - {{ project.name_with_namespace }} <button @click="handleRemoveProject(project)">Remover</button>
-                <transition name="fade">
+  <v-container fluid grid-list-xl id="dashboard">
+    <v-layout row wrap>
+      <v-flex xs12>
+        <v-card>
+          <v-card-title>
+            <h3>Select Projects</h3>
+          </v-card-title>
+          <v-card-text>
+            <v-list>
+              <template v-for="project in selectedProjects">
+                <v-list-tile :key="project.id">
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{ project.id }} - {{ project.name_with_namespace }}
+                    </v-list-tile-title>
                     <div v-if="project.pipelines">
+                      <v-list-tile-sub-title>
                         <span v-if="project.pipelines.branches">Branches</span>
-                        <ul>
-                            <li v-for="pipeline in project.pipelines.branches" :key="pipeline.id">
-                                {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
-                            </li>
-                        </ul>
+                        <template v-for="pipeline in project.pipelines.branches">
+                          <v-chip :key="pipeline.id">
+                            <PipelineStatus :pipeline="pipeline"/>
+                            {{ pipeline.ref }}
+                          </v-chip>
+                        </template>
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
                         <span v-if="project.pipelines.tags">Tags</span>
-                        <ul>
-                            <li v-for="pipeline in project.pipelines.tags" :key="pipeline.id">
-                                {{ pipeline.id }} - {{ pipeline.ref }} - {{ pipeline.status }}
-                            </li>
-                        </ul>
-                        <span v-if="project.pipelines.variables">Variables</span>
-                        <ul>
-                            <li v-for="variable in project.pipelines.variables" :key="variable.id">
-                                {{ variable.key }} - {{ variable.value }}
-                            </li>
-                        </ul>
+                        <template v-for="pipeline in project.pipelines.tags">
+                          <v-chip :key="pipeline.id">
+                            <PipelineStatus :pipeline="pipeline"/>
+                            {{ pipeline.ref }}
+                          </v-chip>
+                        </template>
+                      </v-list-tile-sub-title>
+                      <!--
+                                          <span v-if="project.pipelines.variables">Variables</span>
+                                          <ul>
+                                            <li v-for="variable in project.pipelines.variables" :key="variable.id">
+                                              {{ variable.key }} - {{ variable.value }}
+                                            </li>
+                                          </ul>
+                      -->
                     </div>
-                </transition>
-            </li>
-        </ul>
-        <footer>{{now()}}</footer>
-    </div>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-btn @click="handleRemoveProject(project)" icon flat ripple color="error">
+                      <v-icon>delete</v-icon>
+                    </v-btn>
+                  </v-list-tile-action>
+                </v-list-tile>
+                <v-divider></v-divider>
+              </template>
+            </v-list>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <v-bottom-sheet v-model="openDialog" inset="">
+      <v-btn
+        fixed
+        bottom
+        right
+        fab
+        dark
+        color="pink"
+        slot="activator"
+        @click.stop="openDialog = true">
+        <v-icon>add</v-icon>
+      </v-btn>
+      <v-flex xs12>
+        <v-card>
+          <v-card-title>
+            <h1>{{ message }} - {{ gitlab_url }}</h1>
+          </v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="handleSelectProject">
+              <v-layout row wrap>
+                <v-flex xs10>
+                  <v-select single-line
+                            autocomplete
+                            clearable
+                            open-on-clear
+                            name="Projects"
+                            label="Select"
+                            item-text="name_with_namespace"
+                            no-data-text="Sem registros encontrados ..."
+                            :items="projects"
+                            :loading="loading"
+                            :search-input.sync="search"
+                            @keyup.enter.native="handleSelectProject"
+                            v-model="currentProject">
+                  </v-select>
+                </v-flex>
+                <v-flex xs2>
+                  <v-btn @click="handleSelectProject">Get Pipelines</v-btn>
+                </v-flex>
+              </v-layout>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-bottom-sheet>
+  </v-container>
 </template>
 
 <script>
+import PipelineStatus from './utility/PipelineStatus';
+
 export default {
-  name: "Dashboard",
+  name: 'Dashboard',
+  components: { PipelineStatus },
   data() {
     return {
-      gitlab_url: "https://gitlab.com",
-      gitlab_token: "",
       gitlab_query_params: {
-        search: "",
-        order_by: "path"
+        search: '',
+        order_by: 'path',
+        membership: true,
       },
-      message: "GitLab MultiProject Dashboard",
-      currentProject: "",
-      projects: [],
-      selectedProjects: []
+      openDialog: false,
+      message: 'GitLab MultiProject Dashboard',
+      currentProject: '',
+      projects: [{ name_with_namespace: '' }],
+      search: '',
+      selectedProjects: [],
+      name: '',
+      email: '',
+      loading: false,
+      select: null,
+      items: [
+        'Item 1',
+        'Item 2',
+        'Item 3',
+        'Item 4',
+      ],
+      checkbox: null,
+      dictionary: {
+        attributes: {
+          email: 'E-mail Address',
+          // custom attributes
+        },
+        custom: {
+          name: {
+            required: () => 'Name can not be empty',
+            max: 'The name field may not be greater than 10 characters',
+            // custom messages
+          },
+          select: {
+            required: 'Select field is required',
+          },
+        },
+      },
     };
   },
   computed: {
+    gitlab_url() {
+      return this.$store.state.configuration.gitlab_url;
+    },
+    gitlab_token() {
+      return this.$store.state.configuration.gitlab_token;
+    },
     gitlab_project_query() {
       return Object.keys(this.gitlab_query_params).reduce((string, key) => {
-        if (!string.match("="))
+        if (!string.match('=')) {
           string = `${string}=${this.gitlab_query_params[string]}`;
-        return string + `&${key}=${this.gitlab_query_params[key]}`;
+        }
+        return `${string}&${key}=${this.gitlab_query_params[key]}`;
       });
-    }
+    },
   },
   created() {
     this.fetchProjects();
@@ -74,81 +177,83 @@ export default {
       fetch(
         `${this.gitlab_url}/api/v4/projects?${
           this.gitlab_project_query
-        }&private_token=${this.gitlab_token}`
+        }&private_token=${this.gitlab_token}`,
       )
         .then(response => response.json())
-        .then(json => {
+        .then((json) => {
           this.projects = json;
         });
     },
-    handleProjectLoad: function(project) {
+    handleProjectLoad(project) {
       fetch(
         `${this.gitlab_url}/api/v4/projects/${
           project.id
         }/pipelines?scope=branches&per_page=5&private_token=${
           this.gitlab_token
-        }`
+        }`,
       )
         .then(response => response.json())
-        .then(json => {
+        .then((json) => {
           if (json.length) {
-            if (!project.pipelines) this.$set(project, "pipelines", {});
-            this.$set(project.pipelines, "branches", json);
+            if (!project.pipelines) this.$set(project, 'pipelines', {});
+            this.$set(project.pipelines, 'branches', json);
           }
         });
 
       fetch(
         `${this.gitlab_url}/api/v4/projects/${
           project.id
-        }/pipelines?scope=tags&per_page=5&private_token=${this.gitlab_token}`
+        }/pipelines?scope=tags&per_page=5&private_token=${this.gitlab_token}`,
       )
         .then(response => response.json())
-        .then(json => {
+        .then((json) => {
           if (json.length) {
-            if (!project.pipelines) this.$set(project, "pipelines", {});
-            this.$set(project.pipelines, "tags", json);
+            if (!project.pipelines) this.$set(project, 'pipelines', {});
+            this.$set(project.pipelines, 'tags', json);
           }
         });
 
       fetch(
         `${this.gitlab_url}/api/v4/projects/${
           project.id
-        }/variables?private_token=${this.gitlab_token}`
+        }/variables?private_token=${this.gitlab_token}`,
       )
         .then(response => response.json())
-        .then(json => {
+        .then((json) => {
           if (json.length) {
-            if (!project.pipelines) this.$set(project, "pipelines", {});
+            if (!project.pipelines) this.$set(project, 'pipelines', {});
             this.$set(
               project.pipelines,
-              "variables",
-              json //.filter(item => item.key.startsWith("NEXUS"))
+              'variables',
+              json, // .filter(item => item.key.startsWith("NEXUS"))
             );
           }
         });
     },
-    handleSelectProject: function() {
+    handleSelectProject() {
       this.selectedProjects.push(this.currentProject);
     },
-    handleRemoveProject: function(project) {
-      let i = this.selectedProjects.indexOf(project);
+    handleRemoveProject(project) {
+      const i = this.selectedProjects.indexOf(project);
       if (i >= 0) this.selectedProjects.splice(i, 1);
     },
-    now: function() {
-      return new Date(Date.now()).toLocaleString();
-    }
   },
   watch: {
-    selectedProjects: function(val) {
+    search(val) {
+      if (val) this.gitlab_query_params.search = val;
+      this.fetchProjects();
+      console.log('Watcher Fetching projects');
+    },
+    selectedProjects(val) {
       val.forEach(project => this.handleProjectLoad(project));
-    }
-  }
+    },
+  },
 };
 </script>
 
-
-<style scoped>
-#app {
-  text-align: left;
-}
+<style>
+  .list__tile {
+    height: 100% !important;
+    padding: 1em;
+  }
 </style>
