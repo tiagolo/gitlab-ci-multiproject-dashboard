@@ -1,5 +1,8 @@
 <template>
-  <v-dialog persistent v-model="openSettings" max-width="500px">
+  <v-dialog persistent :value="openSettings" max-width="500px">
+    <v-btn icon slot="activator" @click.stop="opened = true">
+      <v-icon>settings</v-icon>
+    </v-btn>
     <v-card>
       <v-card-title>
         Configuration
@@ -7,22 +10,22 @@
       <v-card-text>
         <v-text-field
           label="Gitlab URL"
-          @input="set_gitlab_url"
-          :value="gitlab_url">
+          @input="setGitlabUrl"
+          :value="gitlabUrl">
         </v-text-field>
         <v-text-field
           password
           counter
           label="Gitlab TOKEN"
-          @input="set_gitlab_token"
-          :value="gitlab_token"
+          @input="setGitlabToken"
+          :value="gitlabToken"
           :append-icon="e1 ? 'visibility' : 'visibility_off'"
           :append-icon-cb="() => (e1 = !e1)"
           :type="e1 ? 'password' : 'text'">
         </v-text-field>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" flat @click="settings=false">Close</v-btn>
+        <v-btn color="primary" flat @click="opened = false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -33,26 +36,27 @@ import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Configuration',
-  props: {
-    settings: {},
-  },
   data() {
     return {
       e1: true,
+      opened: false,
     };
   },
   computed: {
     openSettings() {
-      return this.settings || !this.gitlab_url || !this.gitlab_token;
+      // this.opened = !this.gitlabUrl || !this.gitlabToken ?: true
+      return this.opened || !this.gitlabUrl || !this.gitlabToken;
     },
     ...mapGetters([
-      'gitlab_url',
-      'gitlab_token',
+      'gitlabUrl',
+      'gitlabToken',
     ]),
   },
-  methods: mapMutations([
-    'set_gitlab_url',
-    'set_gitlab_token',
-  ]),
+  methods: {
+    ...mapMutations([
+      'setGitlabUrl',
+      'setGitlabToken',
+    ]),
+  },
 };
 </script>
