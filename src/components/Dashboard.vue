@@ -8,7 +8,7 @@
           </v-card-title>
           <v-card-text>
             <v-list>
-              <template v-for="project in selectedProjects">
+              <template v-for="project in getAvailableProjects">
                 <v-list-tile :key="project.id">
                   <v-list-tile-content>
                     <v-list-tile-title>
@@ -36,7 +36,7 @@
                       <v-list-tile-sub-title>
                         <span v-if="project.pipelines.variables">Variables</span>
                         <template v-for="variable in project.pipelines.variables">
-                            {{ variable.key }} - {{ variable.value }}
+                          {{ variable.key }} - {{ variable.value }}
                         </template>
                       </v-list-tile-sub-title>
                     </div>
@@ -47,37 +47,47 @@
                     </v-btn>
                   </v-list-tile-action>
                 </v-list-tile>
-                <v-divider :key="project.id"></v-divider>
+                <v-divider></v-divider>
               </template>
             </v-list>
           </v-card-text>
         </v-card>
       </v-flex>
     </v-layout>
-
     <SelectProject/>
   </v-container>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import PipelineStatus from './utility/PipelineStatus';
 import SelectProject from './utility/SelectProject';
 
 export default {
   name: 'Dashboard',
   components: { SelectProject, PipelineStatus },
-  computed: mapGetters([
-    'selectedProjects',
-  ]),
+  computed: {
+    ...mapState([
+      'selectedProjects',
+    ]),
+    ...mapGetters([
+      'gitlab_project_query',
+      'getAvailableProjects',
+    ]),
+  },
+  created() {
+  },
   watch: {
     selectedProjects(val) {
       val.forEach(project => this.handleProjectLoad(project));
     },
   },
-  action: mapActions([
-    'handleRemoveProject',
-  ]),
+  methods: {
+    ...mapActions([
+      'fetchAvailableProjects',
+      // 'handleRemoveProject',
+    ]),
+  },
 };
 </script>
 

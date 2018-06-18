@@ -1,5 +1,5 @@
 <template>
-  <v-bottom-sheet inset>
+  <v-bottom-sheet inset lazy v-model="sheet">
     <v-btn
       fixed
       bottom
@@ -10,90 +10,94 @@
       slot="activator">
       <v-icon>add</v-icon>
     </v-btn>
-    <v-flex >
-      <v-card>
-        <v-card-title>
-          <h1>{{ msgSelectProject }}</h1>
-        </v-card-title>
-        <v-card-text>
-          <v-form @submit.prevent="handleSelectProject" grid-list-xs>
-            <v-layout row wrap>
-              <v-flex xs11>
-                <v-select single-line
-                          autocomplete
-                          clearable
-                          open-on-clear
-                          name="Projects"
-                          label="Select"
-                          item-text="name_with_namespace"
-                          no-data-text="Sem registros encontrados ..."
-                          :items="projects"
-                          :search-input.sync="search"
-                          @keyup.enter.native="handleSelectProject"
-                          v-model="currentProject">
-                </v-select>
-              </v-flex>
-              <v-flex xs1>
-                <v-btn fab><v-icon dark>done</v-icon></v-btn>
-              </v-flex>
-            </v-layout>
-          </v-form>
-        </v-card-text>
-      </v-card>
+    <v-flex @mousemove="onMouseMove" @mouseleave="onMouseMove"
+            @mouseup="onMouseUp" >
+      <v-toolbar id="toolbarPanel" color="cyan" dark>
+        <v-toolbar-side-icon @mousedown="onMouseDown"></v-toolbar-side-icon>
+        <v-toolbar-title>{{ msgSelectProject }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn icon>
+          <v-icon>search</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-list id="projectList" two-line class="scroll-y" :style="{maxHeight: this.height + 'px'}">
+        <template v-for="item in getAvailableProjects">
+          <!--<v-subheader v-if="item.header" :key="item.header">{{ item.header }}</v-subheader>-->
+          <!--<v-divider v-else-if="item.divider" :inset="item.inset" :key="index"></v-divider>-->
+          <v-list-tile :key="item.name_with_namespace" avatar @click="">
+            <v-list-tile-action>
+              <v-checkbox
+                readonly
+              ></v-checkbox>
+            </v-list-tile-action>
+            <v-list-tile-avatar color="blue">
+              <img :src="item.avatar_url" v-if="item.avatar_url">
+              <v-card-text v-else>{{item.name.substring(0,1).toUpperCase()}}</v-card-text>
+            </v-list-tile-avatar>
+            <v-list-tile-content>
+              <v-list-tile-title v-html="item.name"></v-list-tile-title>
+              <v-list-tile-sub-title v-html="item.path_with_namespace"></v-list-tile-sub-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </template>
+      </v-list>
     </v-flex>
   </v-bottom-sheet>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'SelectProject',
   data() {
     return {
-      gitlab_query_params: {
-        search: '',
-        order_by: 'path',
-        membership: true,
-      },
+      sheet: false,
       currentProject: null,
       search: '',
-      projects: [{ name_with_namespace: '' }],
+      projects: [ { name_with_namespace: '' } ],
       msgSelectProject: 'Selecione o Projeto',
+      isDragging: false,
+      startY: null,
+      startHeight: null,
+      height: 400,
     };
   },
   computed: {
-    // ...mapGetters([
-    //   'projects',
-    // ]),
-    // gitlab_project_query() {
-    //   return Object.keys(this.gitlab_query_params).reduce((previousValue, currentValue) => {
-    //     let queryString = '';
-    //     console.log(previousValue, currentValue);
-    //     if (!previousValue.match('=')) {
-    //       queryString = `${previousValue}=${this.gitlab_query_params[previousValue]}`;
-    //     }
-    //     return `${queryString}&${currentValue}=${this.gitlab_query_params[currentValue]}`;
-    //   });
-    // },
+    ...mapGetters([
+      'getAvailableProjects',
+    ]),
   },
-  // watch: {
-  //   search(val) {
-  //     if (val) this.gitlab_query_params.search = val;
-  //     this.fetchProjects();
-  //     console.log('Watcher Fetching projects');
-  //   },
-  // },
-  // actions: {
-  //   fetchProjects() {
-  //     fetch(
-  //       `${this.gitlabUrl}/api/v4/projects?${this.gitlab_project_query}&private_token=${this.gitlabToken}`,
-  //     )
-  //       .then(response => response.json())
-  //       .then((json) => {
-  //         this.projects = json;
-  //       });
-  //   },
-  // },
+  watch: {
+    sheet(val) {
+      if (val) {
+        this.fetchAvailableProjects();
+      }
+    },
+  },
+  methods: {
+    ...mapActions([
+      'fetchAvailableProjects',
+    ]),
+    onMouseDown(event) {
+      console.log(event);
+      this.isDragging = true;
+      this.startY = event.pageY;
+      this.startHeight = this.height;
+    },
+    onMouseMove(event) {
+      if (this.isDragging) {
+        const dx = event.pageY - this.startY;
+        this.height = this.startHeight - dx;
+
+        // console.log(`DX: startY: ${this.startY} | pageY: ${event.pageY}`)
+        // console.log(`rawHeight: toolbar: ${toolbarPanel.offsetHeight} | list: ${projectList.offsetHeight} `)
+        // console.log(`height: ${totalHeight} - ${dx} = ${this.height}`);
+      }
+    },
+    onMouseUp() {
+      this.isDragging = false;
+    },
+  },
 };
 </script>
