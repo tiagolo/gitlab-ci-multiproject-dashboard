@@ -14,9 +14,9 @@ const getters = {
   gitlab_project_query(state) {
     return Object.keys(state._gitlab_query_params).reduce((previousValue, currentValue) => {
       if (!previousValue.match('=')) {
-        previousValue = `${previousValue}=${state._gitlab_query_params[previousValue]}`;
+        previousValue = `${previousValue}=${state._gitlab_query_params[ previousValue ]}`;
       }
-      return `${previousValue}&${currentValue}=${state._gitlab_query_params[currentValue]}`;
+      return `${previousValue}&${currentValue}=${state._gitlab_query_params[ currentValue ]}`;
     });
   },
   getAvailableProjects: state => state.availableProjects,
@@ -43,26 +43,24 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    state.selectedProjects[index].pipelines[payload.prop] = payload.json;
+    state.selectedProjects[ index ].pipelines[ payload.prop ] = payload.json;
   },
 };
 
 const actions = {
-  async selectProjectsById({ state, commit }, val) {
+  selectProjectsById({ state, commit }, val) {
     const selecteItems = val.map(id => state.availableProjects.find(item => item.id === id));
     commit('setSelectedProjects', JSON.parse(JSON.stringify(selecteItems)));
   },
-  async fetchAvailableProjects({ state, rootGetters, commit }) {
-    if (!state.availableProjects) {
-      console.log('fetching available projects ..... ');
-      fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
-        .then(response => response.json())
-        .then((json) => {
-          commit('setAvailableProjects', json);
-        });
-    }
+  fetchAvailableProjects({ state, rootGetters, commit }) {
+    console.log('fetching available projects ..... ');
+    fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
+      .then(response => response.json())
+      .then((json) => {
+        commit('setAvailableProjects', json);
+      });
   },
-  async handleProjectLoad({ rootGetters, commit }, project) {
+  handleProjectLoad({ rootGetters, commit }, project) {
     fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=branches&per_page=5&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
