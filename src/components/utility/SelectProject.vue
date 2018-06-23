@@ -1,5 +1,5 @@
 <template>
-  <v-bottom-sheet inset lazy v-model="sheet">
+  <v-bottom-sheet inset lazy v-model="ux_sheet">
     <v-btn
       fixed
       bottom
@@ -11,7 +11,7 @@
       <v-icon>add</v-icon>
     </v-btn>
     <v-flex @mousemove="onMouseMove" @mouseleave="onMouseMove"
-            @mouseup="onMouseUp" >
+            @mouseup="onMouseUp">
       <v-toolbar id="toolbarPanel" color="cyan" dark>
         <v-toolbar-side-icon @mousedown="onMouseDown"></v-toolbar-side-icon>
         <v-toolbar-title>{{ msgSelectProject }}</v-toolbar-title>
@@ -20,14 +20,17 @@
           <v-icon>search</v-icon>
         </v-btn>
       </v-toolbar>
-      <v-list id="projectList" two-line class="scroll-y" :style="{maxHeight: this.height + 'px'}">
+      <v-list id="projectList" two-line class="scroll-y" :style="{maxHeight: this.ux_height + 'px'}">
         <template v-for="item in getAvailableProjects">
           <!--<v-subheader v-if="item.header" :key="item.header">{{ item.header }}</v-subheader>-->
           <!--<v-divider v-else-if="item.divider" :inset="item.inset" :key="index"></v-divider>-->
-          <v-list-tile :key="item.name_with_namespace" avatar @click="">
+          <v-list-tile :key="item.name_with_namespace" avatar>
             <v-list-tile-action>
               <v-checkbox
                 readonly
+                :value="item.id"
+                :id="'ch'+item.id"
+                v-model="selectedProjects"
               ></v-checkbox>
             </v-list-tile-action>
             <v-list-tile-avatar color="blue">
@@ -52,27 +55,35 @@ export default {
   name: 'SelectProject',
   data() {
     return {
-      sheet: false,
-      currentProject: null,
+      ux_sheet: false,
+      ux_isDragging: false,
+      ux_startY: null,
+      ux_startHeight: null,
+      ux_height: 400,
       search: '',
-      projects: [ { name_with_namespace: '' } ],
       msgSelectProject: 'Selecione o Projeto',
-      isDragging: false,
-      startY: null,
-      startHeight: null,
-      height: 400,
     };
   },
   computed: {
     ...mapGetters([
       'getAvailableProjects',
     ]),
+    selectedProjects: {
+      get() {
+        return this.$store.getters.getSelectedProjects.map(item => item.id)
+      },
+      set(val) {
+        this.$store.dispatch('selectProjectsById', val);
+      },
+    },
   },
   watch: {
-    sheet(val) {
+    ux_sheet(val) {
       if (val) {
         this.fetchAvailableProjects();
       }
+    },
+    selectedItems() {
     },
   },
   methods: {
@@ -80,23 +91,22 @@ export default {
       'fetchAvailableProjects',
     ]),
     onMouseDown(event) {
-      console.log(event);
-      this.isDragging = true;
-      this.startY = event.pageY;
-      this.startHeight = this.height;
+      this.ux_isDragging = true;
+      this.ux_startY = event.pageY;
+      this.ux_startHeight = this.ux_height;
     },
     onMouseMove(event) {
-      if (this.isDragging) {
-        const dx = event.pageY - this.startY;
-        this.height = this.startHeight - dx;
+      if (this.ux_isDragging) {
+        const dx = event.pageY - this.ux_startY;
+        this.ux_height = this.ux_startHeight - dx;
 
-        // console.log(`DX: startY: ${this.startY} | pageY: ${event.pageY}`)
+        // console.log(`DX: ux_startY: ${this.ux_startY} | pageY: ${event.pageY}`)
         // console.log(`rawHeight: toolbar: ${toolbarPanel.offsetHeight} | list: ${projectList.offsetHeight} `)
-        // console.log(`height: ${totalHeight} - ${dx} = ${this.height}`);
+        // console.log(`ux_height: ${totalHeight} - ${dx} = ${this.ux_height}`);
       }
     },
     onMouseUp() {
-      this.isDragging = false;
+      this.ux_isDragging = false;
     },
   },
 };
