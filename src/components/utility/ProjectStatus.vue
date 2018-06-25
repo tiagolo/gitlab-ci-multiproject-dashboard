@@ -18,7 +18,7 @@
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.tags">Tags</span>
             <template v-for="pipeline in project.pipelines.tags">
-              <v-chip :key="pipeline.id">
+              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
                 <PipelineStatus :pipeline="pipeline"/>
                 {{ pipeline.ref }}
               </v-chip>
