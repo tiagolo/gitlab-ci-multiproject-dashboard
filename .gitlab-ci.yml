@@ -68,7 +68,7 @@ pre-build:
   stage: pre-build
   image: node:10-slim
   script:
-    - yarn build --prod
+    - yarn build
   artifacts:
     paths: [dist]
 
