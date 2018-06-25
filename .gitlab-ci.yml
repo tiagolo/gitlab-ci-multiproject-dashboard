@@ -70,7 +70,7 @@ pre-build:
   script:
     - yarn build --prod
   artifacts:
-    path: [dist]
+    paths: [dist]
 
 build:
   stage: build
