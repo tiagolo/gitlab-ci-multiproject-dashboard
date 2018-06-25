@@ -73,7 +73,7 @@ export default {
     },
     fetchProject() {
       this.isFetching = true;
-      console.log(`Checking update - ${this.project.path_with_namespace}`);
+      // console.log(`Checking update - ${this.project.path_with_namespace}`);
       this.$store.dispatch('handleProjectLoad', this.project)
         .then(() => this.isFetching = false);
     },

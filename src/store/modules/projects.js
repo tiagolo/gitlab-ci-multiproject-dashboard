@@ -56,7 +56,7 @@ const actions = {
     commit('setSelectedProjects', JSON.parse(JSON.stringify(selecteItems)));
   },
   fetchAvailableProjects({ state, rootGetters, commit }) {
-    console.log('fetching available projects ..... ');
+    // console.log('fetching available projects ..... ');
     fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
