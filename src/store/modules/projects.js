@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const state = {
   isFetching: false,
   selectedProjects: [],
@@ -5,6 +7,7 @@ const state = {
   _gitlab_query_params: {
     search: '',
     order_by: 'path',
+    sort: 'asc',
     membership: true,
     per_page: 100,
   },
@@ -39,7 +42,7 @@ const mutations = {
     }
   },
   setAvailableProjects(state, projects) {
-    state.availableProjects = projects;
+    state.availableProjects = _.sortBy(projects, 'path_with_namespace');
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);

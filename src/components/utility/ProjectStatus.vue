@@ -33,7 +33,10 @@
         </div>
       </v-list-tile-content>
       <v-list-tile-action>
-        <v-btn @click="" icon flat ripple color="error">
+        <v-progress-circular v-if="isFetching"
+                             indeterminate color="primary"></v-progress-circular>
+        <v-btn v-else
+               @click="removeProject" icon flat ripple color="error">
           <v-icon>delete</v-icon>
         </v-btn>
       </v-list-tile-action>
@@ -51,10 +54,34 @@ export default {
   props: {
     project: {},
   },
+  data() {
+    return {
+      interval: 0,
+      isFetching: false,
+    };
+  },
+  created() {
+    this.fetchProject();
+    this.interval = setInterval(this.fetchProject, 10 * 1000);
+  },
+  beforeDestroy() {
+    clearInterval(this.interval);
+  },
+  methods: {
+    removeProject() {
+      this.$store.dispatch('removeProject', this.project);
+    },
+    fetchProject() {
+      this.isFetching = true;
+      console.log(`Checking update - ${this.project.path_with_namespace}`);
+      this.$store.dispatch('handleProjectLoad', this.project)
+        .then(() => this.isFetching = false);
+    },
+  },
 };
 </script>
 
-<style >
+<style>
 /*noinspection CssUnusedSymbol*/
 .list__tile {
   height: 100% !important;
