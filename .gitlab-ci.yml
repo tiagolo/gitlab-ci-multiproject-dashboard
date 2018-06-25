@@ -66,7 +66,7 @@ stages:
 
 pre-build:
   stage: pre-build
-  image: node:10-slim
+  image: node:10
   script:
     - yarn install
     - yarn build
