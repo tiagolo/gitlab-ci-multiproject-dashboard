@@ -23,6 +23,8 @@ export default {
           return 'orange'
         case 'running':
           return 'blue'
+        case 'manual':
+          return 'grey'
         default:
           return 'grey darken-1';
       }
@@ -37,6 +39,8 @@ export default {
           return 'pause'
         case 'running':
           return 'play_arrow'
+        case 'manual':
+          return 'fingerprint'
         default:
           return 'remove';
       }
