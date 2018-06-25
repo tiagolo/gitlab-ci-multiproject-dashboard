@@ -66,7 +66,7 @@ stages:
 
 pre-build:
   stage: pre-build
-  image: 10-slim
+  image: node:10-slim
   script:
     - yarn build --prod
   artifacts:
