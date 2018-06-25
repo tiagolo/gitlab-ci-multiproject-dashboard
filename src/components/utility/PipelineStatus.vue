@@ -1,5 +1,5 @@
 <template>
-    <v-avatar :class="[{ animation: isRunning }, getPipelineStatusColor]">
+    <v-avatar :class="[{ animation: isRunning }, getPipelineStatusColor]" >
         <v-icon dark  >{{ getPipelineStatusIcon }}</v-icon>
     </v-avatar>
 </template>

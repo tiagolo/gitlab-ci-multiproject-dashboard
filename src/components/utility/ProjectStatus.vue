@@ -9,7 +9,7 @@
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.branches">Branches</span>
             <template v-for="pipeline in project.pipelines.branches">
-              <v-chip :key="pipeline.id">
+              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
                 <PipelineStatus :pipeline="pipeline"/>
                 {{ pipeline.ref }}
               </v-chip>
@@ -77,6 +77,9 @@ export default {
       this.$store.dispatch('handleProjectLoad', this.project)
         .then(() => this.isFetching = false);
     },
+    openPipeline(pipeline) {
+      window.open(`${this.project.web_url}/pipelines/${pipeline.id}`, '_blank');
+    },
   },
 };
 </script>
@@ -87,5 +90,8 @@ export default {
   height: 100% !important;
   padding: 1em;
 }
-</style>
 
+.chip .chip__content{
+  cursor: pointer;
+}
+</style>
