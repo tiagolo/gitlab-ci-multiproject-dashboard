@@ -3,14 +3,9 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-card-title>
-            <h3>Select Projects</h3>
-          </v-card-title>
-          <v-card-text>
-            <v-list>
-              <ProjectStatus v-for="project in getSelectedProjects" :key="project.id" :project="project"/>
-            </v-list>
-          </v-card-text>
+          <v-list>
+            <ProjectStatus v-for="project in getSelectedProjects" :key="project.id" :project="project"/>
+          </v-list>
         </v-card>
       </v-flex>
     </v-layout>
