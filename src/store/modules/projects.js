@@ -18,9 +18,9 @@ const getters = {
   gitlab_project_query(state) {
     return Object.keys(state._gitlab_query_params).reduce((previousValue, currentValue) => {
       if (!previousValue.match('=')) {
-        previousValue = `${previousValue}=${state._gitlab_query_params[previousValue]}`;
+        previousValue = `${previousValue}=${state._gitlab_query_params[ previousValue ]}`;
       }
-      return `${previousValue}&${currentValue}=${state._gitlab_query_params[currentValue]}`;
+      return `${previousValue}&${currentValue}=${state._gitlab_query_params[ currentValue ]}`;
     });
   },
   getAvailableProjects: state => state.availableProjects,
@@ -30,7 +30,7 @@ const getters = {
 const mutations = {
   setSelectedProjects(state, val) {
     val.forEach((project) => {
-      if (!state.selectedProjects.find(p => p.id ===  project.id)) {
+      if (!state.selectedProjects.find(p => p.id === project.id)) {
         if (!project.pipelines) project.pipelines = {};
         state.selectedProjects.push(project);
       }
@@ -50,16 +50,16 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    Vue.set(state.selectedProjects[index].pipelines, payload.prop, payload.json);
+    Vue.set(state.selectedProjects[ index ].pipelines, payload.prop, payload.json);
   },
 };
 
 const actions = {
-  selectProjectsById({state, commit}, val) {
+  selectProjectsById({ state, commit }, val) {
     const selecteItems = val.map(id => state.availableProjects.find(item => item.id === id));
     commit('setSelectedProjects', JSON.parse(JSON.stringify(selecteItems)));
   },
-  fetchAvailableProjects({state, rootGetters, commit}) {
+  fetchAvailableProjects({ state, rootGetters, commit }) {
     // console.log('fetching available projects ..... ');
     fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
@@ -67,30 +67,37 @@ const actions = {
         commit('setAvailableProjects', json);
       });
   },
-  handleProjectLoad({rootGetters, commit}, project) {
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=branches&per_page=3&private_token=${rootGetters.gitlabToken}`)
+  handleProjectLoad({ rootGetters, commit }, project) {
+    const fetchBranches = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
+      + `${project.id}/pipelines?scope=branches&per_page=3&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
-          commit('setProjectPipeline', {project, json, prop: 'branches'});
+          commit('setProjectPipeline', { project, json, prop: 'branches' });
         }
       });
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=tags&per_page=3&private_token=${rootGetters.gitlabToken}`)
+
+    const fetchTags = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
+      + `${project.id}/pipelines?scope=tags&per_page=3&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
-          commit('setProjectPipeline', {project, json, prop: 'tags'});
+          commit('setProjectPipeline', { project, json, prop: 'tags' });
         }
       });
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/variables?private_token=${rootGetters.gitlabToken}`)
+
+    const fetchVariables = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
+      + `${project.id}/variables?private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
           // commit('setProjectPipeline', { project, json, prop: 'variables' });
         }
       });
+
+    return Promise.all([ fetchBranches, fetchTags, fetchVariables ]);
   },
-  handleRemoveProject({commit}, project) {
+  handleRemoveProject({ commit }, project) {
     commit('removeProject', project);
   },
 };

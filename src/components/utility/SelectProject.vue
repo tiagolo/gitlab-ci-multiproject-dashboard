@@ -110,8 +110,6 @@ export default {
     uxToggleSearch() {
       this.ux_isSearchEnabled = !this.ux_isSearchEnabled;
       if (!this.ux_isSearchEnabled) this.search = '';
-
-      if (this.uxToggleSearch()) { this.ux_searchInput.focus(); }
     },
     onMouseDown(event) {
       this.ux_isDragging = true;
