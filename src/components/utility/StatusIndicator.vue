@@ -24,7 +24,7 @@ export default {
         case 'running':
           return 'blue'
         case 'manual':
-          return 'grey'
+          return 'brown lighten-1'
         default:
           return 'grey darken-1';
       }
@@ -40,7 +40,7 @@ export default {
         case 'running':
           return 'play_arrow'
         case 'manual':
-          return 'fingerprint'
+          return 'skip_next'
         default:
           return 'remove';
       }

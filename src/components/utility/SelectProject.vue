@@ -15,6 +15,7 @@
       <v-toolbar id="toolbarPanel" color="cyan" dark>
         <v-toolbar-side-icon @mousedown="onMouseDown"></v-toolbar-side-icon>
         <v-text-field
+          autofocus
           prepend-icon="search"
           append-icon="close"
           :append-icon-cb="uxToggleSearch"
@@ -82,9 +83,7 @@ export default {
     filteredAvailableProjects() {
       let availableProjects = this.getAvailableProjects;
       if (this.search) {
-        availableProjects = this.getAvailableProjects.filter((p) => {
-          return p.path_with_namespace.includes(this.search);
-        });
+        availableProjects = this.getAvailableProjects.filter(p => p.path_with_namespace.includes(this.search));
       }
       return availableProjects;
     },
@@ -111,6 +110,8 @@ export default {
     uxToggleSearch() {
       this.ux_isSearchEnabled = !this.ux_isSearchEnabled;
       if (!this.ux_isSearchEnabled) this.search = '';
+
+      if (this.uxToggleSearch()) { this.ux_searchInput.focus(); }
     },
     onMouseDown(event) {
       this.ux_isDragging = true;
