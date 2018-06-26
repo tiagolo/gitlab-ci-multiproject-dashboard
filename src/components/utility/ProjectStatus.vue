@@ -41,7 +41,7 @@
         </v-btn>
       </v-list-tile-action>
     </v-list-tile>
-    <v-divider></v-divider>
+    <v-divider v-show="!isLastItem"></v-divider>
   </div>
 </template>
 
@@ -53,6 +53,7 @@ export default {
   components: { PipelineStatus },
   props: {
     project: {},
+    isLastItem: true,
   },
   data() {
     return {
@@ -69,7 +70,7 @@ export default {
   },
   methods: {
     removeProject() {
-      this.$store.dispatch('removeProject', this.project);
+      this.$store.dispatch('handleRemoveProject', this.project);
     },
     fetchProject() {
       this.isFetching = true;

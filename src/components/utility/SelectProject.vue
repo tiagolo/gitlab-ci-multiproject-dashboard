@@ -14,16 +14,26 @@
             @mouseup="onMouseUp">
       <v-toolbar id="toolbarPanel" color="cyan" dark>
         <v-toolbar-side-icon @mousedown="onMouseDown"></v-toolbar-side-icon>
-        <v-toolbar-title>{{ msgSelectProject }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon>search</v-icon>
-        </v-btn>
+        <v-text-field
+          prepend-icon="search"
+          append-icon="close"
+          :append-icon-cb="uxToggleSearch"
+          label="Search"
+          solo-inverted flat
+          v-if="ux_isSearchEnabled"
+          v-model="search"
+          @keyup.esc="uxToggleSearch"
+        ></v-text-field>
+        <template v-else>
+          <v-toolbar-title @click="uxToggleSearch">{{ msgSelectProject }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="uxToggleSearch">
+            <v-icon>search</v-icon>
+          </v-btn>
+        </template>
       </v-toolbar>
       <v-list id="projectList" two-line class="scroll-y" :style="{maxHeight: this.ux_height + 'px'}">
-        <template v-for="item in getAvailableProjects">
-          <!--<v-subheader v-if="item.header" :key="item.header">{{ item.header }}</v-subheader>-->
-          <!--<v-divider v-else-if="item.divider" :inset="item.inset" :key="index"></v-divider>-->
+        <template v-for="item in filteredAvailableProjects">
           <v-list-tile :key="item.name_with_namespace" avatar>
             <v-list-tile-action>
               <v-checkbox
@@ -60,6 +70,7 @@ export default {
       ux_startY: null,
       ux_startHeight: null,
       ux_height: 400,
+      ux_isSearchEnabled: false,
       search: '',
       msgSelectProject: 'Selecione o Projeto',
     };
@@ -68,9 +79,18 @@ export default {
     ...mapGetters([
       'getAvailableProjects',
     ]),
+    filteredAvailableProjects() {
+      let availableProjects = this.getAvailableProjects;
+      if (this.search) {
+        availableProjects = this.getAvailableProjects.filter((p) => {
+          return p.path_with_namespace.includes(this.search);
+        });
+      }
+      return availableProjects;
+    },
     selectedProjects: {
       get() {
-        return this.$store.getters.getSelectedProjects.map(item => item.id)
+        return this.$store.getters.getSelectedProjects.map(item => item.id);
       },
       set(val) {
         this.$store.dispatch('selectProjectsById', val);
@@ -83,13 +103,15 @@ export default {
         this.fetchAvailableProjects();
       }
     },
-    selectedItems() {
-    },
   },
   methods: {
     ...mapActions([
       'fetchAvailableProjects',
     ]),
+    uxToggleSearch() {
+      this.ux_isSearchEnabled = !this.ux_isSearchEnabled;
+      if (!this.ux_isSearchEnabled) this.search = '';
+    },
     onMouseDown(event) {
       this.ux_isDragging = true;
       this.ux_startY = event.pageY;
@@ -99,7 +121,6 @@ export default {
       if (this.ux_isDragging) {
         const dx = event.pageY - this.ux_startY;
         this.ux_height = this.ux_startHeight - dx;
-
         // console.log(`DX: ux_startY: ${this.ux_startY} | pageY: ${event.pageY}`)
         // console.log(`rawHeight: toolbar: ${toolbarPanel.offsetHeight} | list: ${projectList.offsetHeight} `)
         // console.log(`ux_height: ${totalHeight} - ${dx} = ${this.ux_height}`);

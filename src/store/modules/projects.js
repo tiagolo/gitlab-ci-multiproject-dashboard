@@ -17,9 +17,9 @@ const getters = {
   gitlab_project_query(state) {
     return Object.keys(state._gitlab_query_params).reduce((previousValue, currentValue) => {
       if (!previousValue.match('=')) {
-        previousValue = `${previousValue}=${state._gitlab_query_params[ previousValue ]}`;
+        previousValue = `${previousValue}=${state._gitlab_query_params[previousValue]}`;
       }
-      return `${previousValue}&${currentValue}=${state._gitlab_query_params[ currentValue ]}`;
+      return `${previousValue}&${currentValue}=${state._gitlab_query_params[currentValue]}`;
     });
   },
   getAvailableProjects: state => state.availableProjects,
@@ -29,16 +29,19 @@ const getters = {
 const mutations = {
   setSelectedProjects(state, val) {
     val.forEach((project) => {
-      if (!project.pipelines) project.pipelines = {};
+      if (!state.selectedProjects.find(p => p.id ===  project.id)) {
+        if (!project.pipelines) project.pipelines = {};
+        state.selectedProjects.push(project);
+      }
     });
-    state.selectedProjects = val;
   },
   clearSelectedProjects(state) {
     state.selectedProjects = [];
   },
-  addSelectedProjects(state, val) {
-    if (!state.selectedProjects.find(project => project.id === val.id)) {
-      state.selectedProjects.push(val);
+  removeProject(state, val) {
+    const index = state.selectedProjects.findIndex(project => project.id === val.id);
+    if (index || index === 0) {
+      state.selectedProjects.splice(index, 1);
     }
   },
   setAvailableProjects(state, projects) {
@@ -46,16 +49,16 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    state.selectedProjects[ index ].pipelines[ payload.prop ] = payload.json;
+    state.selectedProjects[index].pipelines[payload.prop] = payload.json;
   },
 };
 
 const actions = {
-  selectProjectsById({ state, commit }, val) {
+  selectProjectsById({state, commit}, val) {
     const selecteItems = val.map(id => state.availableProjects.find(item => item.id === id));
     commit('setSelectedProjects', JSON.parse(JSON.stringify(selecteItems)));
   },
-  fetchAvailableProjects({ state, rootGetters, commit }) {
+  fetchAvailableProjects({state, rootGetters, commit}) {
     // console.log('fetching available projects ..... ');
     fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
@@ -63,22 +66,22 @@ const actions = {
         commit('setAvailableProjects', json);
       });
   },
-  handleProjectLoad({ rootGetters, commit }, project) {
+  handleProjectLoad({rootGetters, commit}, project) {
     fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=branches&per_page=5&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
-          commit('setProjectPipeline', { project, json, prop: 'branches' });
+          commit('setProjectPipeline', {project, json, prop: 'branches'});
         }
       });
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=tags&per_page=5&private_token=${rootGetters.gitlabToken}`,)
+    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=tags&per_page=5&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
-          commit('setProjectPipeline', { project, json, prop: 'tags' });
+          commit('setProjectPipeline', {project, json, prop: 'tags'});
         }
       });
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/variables?private_token=${rootGetters.gitlabToken}`,)
+    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/variables?private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
@@ -86,16 +89,9 @@ const actions = {
         }
       });
   },
-  //
-  //
-  // },
-  // handleSelectProject() {
-  //   this.selectedProjects.push(this.currentProject);
-  // },
-  // handleRemoveProject(commit, project) {
-  //   const i = this.selectedProjects.indexOf(project);
-  //   if (i >= 0) this.selectedProjects.splice(i, 1);
-  // },
+  handleRemoveProject({commit}, project) {
+    commit('removeProject', project);
+  },
 };
 
 export default {

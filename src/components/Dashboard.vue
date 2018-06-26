@@ -3,8 +3,8 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-card>
-          <v-list>
-            <ProjectStatus v-for="project in getSelectedProjects" :key="project.id" :project="project"/>
+          <v-list v-show="getSelectedProjects.length">
+            <ProjectStatus v-for="(project, index) in getSelectedProjects" :key="project.id" :project="project" :is-last-item="isLastItem(index)"/>
           </v-list>
         </v-card>
       </v-flex>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import SelectProject from './utility/SelectProject';
 import ProjectStatus from './utility/ProjectStatus';
 
@@ -22,19 +22,14 @@ export default {
   name: 'Dashboard',
   components: { ProjectStatus, SelectProject },
   computed: {
-    ...mapState([
-      'selectedProjects',
-    ]),
     ...mapGetters([
       'gitlab_project_query',
       'getSelectedProjects',
     ]),
   },
-  created() {
-  },
-  watch: {
-    getSelectedProjects(val) {
-      val.forEach(project => this.$store.dispatch('handleProjectLoad', project));
+  methods: {
+    isLastItem(index) {
+      return this.getSelectedProjects.length === index + 1;
     },
   },
 };
