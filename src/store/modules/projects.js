@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import _ from 'lodash';
 
 const state = {
@@ -9,7 +10,7 @@ const state = {
     order_by: 'path',
     sort: 'asc',
     membership: true,
-    per_page: 100,
+    per_page: 300,
   },
 };
 
@@ -49,7 +50,7 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    state.selectedProjects[index].pipelines[payload.prop] = payload.json;
+    Vue.set(state.selectedProjects[index].pipelines, payload.prop, payload.json);
   },
 };
 
@@ -67,14 +68,14 @@ const actions = {
       });
   },
   handleProjectLoad({rootGetters, commit}, project) {
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=branches&per_page=5&private_token=${rootGetters.gitlabToken}`)
+    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=branches&per_page=3&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {
           commit('setProjectPipeline', {project, json, prop: 'branches'});
         }
       });
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=tags&per_page=5&private_token=${rootGetters.gitlabToken}`)
+    fetch(`${rootGetters.gitlabUrl}/api/v4/projects/${project.id}/pipelines?scope=tags&per_page=3&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         if (json.length) {

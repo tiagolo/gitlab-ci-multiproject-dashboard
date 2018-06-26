@@ -8,21 +8,11 @@
         <div v-if="project.pipelines">
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.branches">Branches</span>
-            <template v-for="pipeline in project.pipelines.branches">
-              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
-                <PipelineStatus :pipeline="pipeline"/>
-                {{ pipeline.ref }}
-              </v-chip>
-            </template>
+            <PipelineStatus v-for="pipeline in project.pipelines.branches" :key="pipeline.id" :pipeline="pipeline" :project="project"/>
           </v-list-tile-sub-title>
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.tags">Tags</span>
-            <template v-for="pipeline in project.pipelines.tags">
-              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
-                <PipelineStatus :pipeline="pipeline"/>
-                {{ pipeline.ref }}
-              </v-chip>
-            </template>
+            <PipelineStatus v-for="pipeline in project.pipelines.tags" :key="pipeline.id" :pipeline="pipeline" :project="project"/>
           </v-list-tile-sub-title>
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.variables">Variables</span>
@@ -78,8 +68,12 @@ export default {
       this.$store.dispatch('handleProjectLoad', this.project)
         .then(() => this.isFetching = false);
     },
-    openPipeline(pipeline) {
-      window.open(`${this.project.web_url}/pipelines/${pipeline.id}`, '_blank');
+  },
+  watch: {
+    project: (val, oldVal) => {
+      debugger
+      console.log(val);
+      console.log(oldVal);
     },
   },
 };
@@ -90,9 +84,5 @@ export default {
 .list__tile {
   height: 100% !important;
   padding: 1em;
-}
-
-.chip .chip__content{
-  cursor: pointer;
 }
 </style>
