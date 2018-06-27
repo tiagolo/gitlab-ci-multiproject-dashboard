@@ -10,7 +10,7 @@
       slot="activator">
       <v-icon>add</v-icon>
     </v-btn>
-    <v-flex @mousemove="onMouseMove" @mouseleave="onMouseMove"
+    <v-card @mousemove="onMouseMove" @mouseleave="onMouseMove"
             @mouseup="onMouseUp">
       <v-toolbar id="toolbarPanel" color="cyan" dark>
         <v-toolbar-side-icon @mousedown="onMouseDown"></v-toolbar-side-icon>
@@ -33,9 +33,10 @@
           </v-btn>
         </template>
       </v-toolbar>
-      <v-list id="projectList" two-line class="scroll-y pt-0" :style="{maxHeight: this.ux_height + 'px'}">
       <v-progress-linear indeterminate v-show="ux_isFetching"
-                         class="pt-0, mt-0"/>
+                         color="cyan" height="7"
+                         class="pt-0, ma-0"/>
+      <v-list id="projectList" two-line class="scroll-y pt-0" :style="{maxHeight: this.ux_height + 'px'}">
         <template v-for="item in filteredAvailableProjects">
           <v-list-tile :key="item.name_with_namespace" avatar>
             <v-list-tile-action>
@@ -57,7 +58,7 @@
           </v-list-tile>
         </template>
       </v-list>
-    </v-flex>
+    </v-card>
   </v-bottom-sheet>
 </template>
 
@@ -104,8 +105,8 @@ export default {
       if (val) {
         this.ux_isFetching = true;
         this.fetchAvailableProjects().then(() => {
-            this.ux_isFetching = false;
-          }
+          this.ux_isFetching = false;
+        },
         );
       }
     },

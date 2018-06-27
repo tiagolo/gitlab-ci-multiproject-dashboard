@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid grid-list-xs pa-0 ma-0 id="dashboard">
+  <v-container id="dashboard" fluid grid-list-xs pa-0 ma-0 dark>
 
     <v-container grid-list-xs fluid v-show="getSelectedProjects.length" v-if="viewType">
       <v-layout row wrap d-flex>
@@ -9,7 +9,7 @@
 
     <v-layout row wrap v-else>
       <v-flex xs12>
-        <v-card>
+        <v-card >
           <v-list v-show="getSelectedProjects.length">
             <ProjectStatus v-for="(project, index) in getSelectedProjects" :key="project.id" :project="project"
                            :is-last-item="isLastItem(index)"/>

@@ -1,13 +1,15 @@
 <template>
   <v-flex>
-    <v-card color="blue-grey darken-4" class="white--text flexcard" height="100%">
+    <v-card color="blue-grey darken-3" class="white--text flexcard" height="100%">
+      <v-progress-linear :indeterminate="isFetching"
+                         color="purple" background-opacity="0"
+                         height="5" class="pt-0 mt-0"/>
       <v-card-title primary-title>
         <div>
           <h2 class="headline d-block">{{ project.name }}</h2>
           <div>{{ project.path_with_namespace }}</div>
         </div>
         <v-spacer/>
-        <v-progress-circular indeterminate color="blue-grey darken-2" v-if="isFetching"/>
       </v-card-title>
       <v-card-actions class="grow" v-if="project.pipelines">
         <div v-if="project.pipelines.branches">
