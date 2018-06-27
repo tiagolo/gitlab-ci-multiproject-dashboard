@@ -18,9 +18,9 @@ const getters = {
   gitlab_project_query(state) {
     return Object.keys(state._gitlab_query_params).reduce((previousValue, currentValue) => {
       if (!previousValue.match('=')) {
-        previousValue = `${previousValue}=${state._gitlab_query_params[ previousValue ]}`;
+        previousValue = `${previousValue}=${state._gitlab_query_params[previousValue]}`;
       }
-      return `${previousValue}&${currentValue}=${state._gitlab_query_params[ currentValue ]}`;
+      return `${previousValue}&${currentValue}=${state._gitlab_query_params[currentValue]}`;
     });
   },
   getAvailableProjects: state => state.availableProjects,
@@ -50,7 +50,7 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    Vue.set(state.selectedProjects[ index ].pipelines, payload.prop, payload.json);
+    Vue.set(state.selectedProjects[index].pipelines, payload.prop, payload.json);
   },
 };
 
@@ -61,11 +61,14 @@ const actions = {
   },
   fetchAvailableProjects({ state, rootGetters, commit }) {
     // console.log('fetching available projects ..... ');
-    fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
+    return fetch(`${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
       .then((json) => {
         commit('setAvailableProjects', json);
       });
+  },
+  handleClearSelectedProjects({commit}) {
+    commit('clearSelectedProjects')
   },
   handleProjectLoad({ rootGetters, commit }, project) {
     const fetchBranches = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
@@ -95,7 +98,7 @@ const actions = {
         }
       });
 
-    return Promise.all([ fetchBranches, fetchTags, fetchVariables ]);
+    return Promise.all([fetchBranches, fetchTags, fetchVariables]);
   },
   handleRemoveProject({ commit }, project) {
     commit('removeProject', project);

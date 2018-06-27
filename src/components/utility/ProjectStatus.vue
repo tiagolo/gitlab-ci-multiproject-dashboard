@@ -24,7 +24,7 @@
       </v-list-tile-content>
       <v-list-tile-action>
         <v-progress-circular v-if="isFetching"
-                             indeterminate color="primary"></v-progress-circular>
+                             indeterminate color="primary"/>
         <v-btn v-else
                @click="removeProject" icon flat ripple color="error">
           <v-icon>delete</v-icon>
@@ -53,7 +53,7 @@ export default {
   },
   created() {
     this.fetchProject();
-    this.interval = setInterval(this.fetchProject, 10 * 1000);
+    this.interval = setInterval(this.fetchProject, this.$store.getters.refreshDelay * 1000);
   },
   beforeDestroy() {
     clearInterval(this.interval);

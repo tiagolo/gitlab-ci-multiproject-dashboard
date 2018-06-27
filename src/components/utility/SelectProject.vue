@@ -33,7 +33,9 @@
           </v-btn>
         </template>
       </v-toolbar>
-      <v-list id="projectList" two-line class="scroll-y" :style="{maxHeight: this.ux_height + 'px'}">
+      <v-list id="projectList" two-line class="scroll-y pt-0" :style="{maxHeight: this.ux_height + 'px'}">
+      <v-progress-linear indeterminate v-show="ux_isFetching"
+                         class="pt-0, mt-0"/>
         <template v-for="item in filteredAvailableProjects">
           <v-list-tile :key="item.name_with_namespace" avatar>
             <v-list-tile-action>
@@ -67,10 +69,11 @@ export default {
   data() {
     return {
       ux_sheet: false,
-      ux_isDragging: false,
       ux_startY: null,
       ux_startHeight: null,
       ux_height: 400,
+      ux_isFetching: false,
+      ux_isDragging: false,
       ux_isSearchEnabled: false,
       search: '',
       msgSelectProject: 'Selecione o Projeto',
@@ -99,7 +102,11 @@ export default {
   watch: {
     ux_sheet(val) {
       if (val) {
-        this.fetchAvailableProjects();
+        this.ux_isFetching = true;
+        this.fetchAvailableProjects().then(() => {
+            this.ux_isFetching = false;
+          }
+        );
       }
     },
   },

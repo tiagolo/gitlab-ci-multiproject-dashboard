@@ -1,11 +1,13 @@
 <template>
   <v-flex>
-    <v-card color="blue-grey darken-2" class="white--text flexcard" height="100%">
+    <v-card color="blue-grey darken-4" class="white--text flexcard" height="100%">
       <v-card-title primary-title>
         <div>
           <h2 class="headline d-block">{{ project.name }}</h2>
           <div>{{ project.path_with_namespace }}</div>
         </div>
+        <v-spacer/>
+        <v-progress-circular indeterminate color="blue-grey darken-2" v-if="isFetching"/>
       </v-card-title>
       <v-card-actions class="grow" v-if="project.pipelines">
         <div v-if="project.pipelines.branches">
@@ -35,8 +37,8 @@ export default {
     };
   },
   created() {
-    // this.fetchProject();
-    // this.interval = setInterval(this.fetchProject, 5 * 1000);
+    this.fetchProject();
+    this.interval = setInterval(this.fetchProject, this.$store.getters.refreshDelay * 1000);
   },
   beforeDestroy() {
     clearInterval(this.interval);
@@ -55,10 +57,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.flexcard {
-  display: flex;
-  flex-direction: column;
-}
-</style>
