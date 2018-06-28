@@ -30,11 +30,11 @@ const getters = {
 const mutations = {
   setSelectedProjects(state, val) {
     val.forEach((project) => {
-      if (!state.selectedProjects.find(p => p.id === project.id)) {
-        if (!project.pipelines) project.pipelines = {};
-        state.selectedProjects.push(project);
-      }
+      const currentProject = state.selectedProjects.find(p => p.id === project.id);
+      if (currentProject) project.pipelines = currentProject.pipelines;
+      else if (!project.pipelines) project.pipelines = {};
     });
+    state.selectedProjects = val;
   },
   clearSelectedProjects(state) {
     state.selectedProjects = [];
@@ -56,6 +56,7 @@ const mutations = {
 
 const actions = {
   selectProjectsById({ state, commit }, val) {
+    // debugger
     const selecteItems = val.map(id => state.availableProjects.find(item => item.id === id));
     commit('setSelectedProjects', JSON.parse(JSON.stringify(selecteItems)));
   },
@@ -67,8 +68,8 @@ const actions = {
         commit('setAvailableProjects', json);
       });
   },
-  handleClearSelectedProjects({commit}) {
-    commit('clearSelectedProjects')
+  handleClearSelectedProjects({ commit }) {
+    commit('clearSelectedProjects');
   },
   handleProjectLoad({ rootGetters, commit }, project) {
     const fetchBranches = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
