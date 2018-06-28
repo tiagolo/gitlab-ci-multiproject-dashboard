@@ -4,6 +4,9 @@
                :clipped-left="$vuetify.breakpoint.lgAndUp" fixed>
       <v-toolbar-title>GitLab Dashboard - {{ gitlabUrl }}</v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn icon flat ripple @click="viewType = !viewType">
+        <v-icon>{{ viewType ? 'view_list' : 'dashboard' }}</v-icon>
+      </v-btn>
       <Configuration/>
     </v-toolbar>
 
@@ -33,6 +36,21 @@ export default {
       'gitlabUrl',
     ]),
     now: () => new Date(Date.now()).toLocaleString(),
+    viewType: {
+      get() {
+        return this.$store.getters.viewType;
+      },
+      set(type) {
+        this.$store.commit('setViewType', type);
+      },
+    },
   },
 };
 </script>
+
+<style>
+.flexcard {
+  display: flex;
+  flex-direction: column;
+}
+</style>

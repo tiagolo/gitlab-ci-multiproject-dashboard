@@ -8,21 +8,11 @@
         <div v-if="project.pipelines">
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.branches">Branches</span>
-            <template v-for="pipeline in project.pipelines.branches">
-              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
-                <PipelineStatus :pipeline="pipeline"/>
-                {{ pipeline.ref }}
-              </v-chip>
-            </template>
+            <PipelineStatus v-for="pipeline in project.pipelines.branches" :key="pipeline.id" :pipeline="pipeline" :project="project"/>
           </v-list-tile-sub-title>
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.tags">Tags</span>
-            <template v-for="pipeline in project.pipelines.tags">
-              <v-chip :key="pipeline.id" @click="openPipeline(pipeline)">
-                <PipelineStatus :pipeline="pipeline"/>
-                {{ pipeline.ref }}
-              </v-chip>
-            </template>
+            <PipelineStatus v-for="pipeline in project.pipelines.tags" :key="pipeline.id" :pipeline="pipeline" :project="project"/>
           </v-list-tile-sub-title>
           <v-list-tile-sub-title>
             <span v-if="project.pipelines.variables">Variables</span>
@@ -34,7 +24,7 @@
       </v-list-tile-content>
       <v-list-tile-action>
         <v-progress-circular v-if="isFetching"
-                             indeterminate color="primary"></v-progress-circular>
+                             indeterminate color="primary"/>
         <v-btn v-else
                @click="removeProject" icon flat ripple color="error">
           <v-icon>delete</v-icon>
@@ -63,7 +53,7 @@ export default {
   },
   created() {
     this.fetchProject();
-    this.interval = setInterval(this.fetchProject, 10 * 1000);
+    this.interval = setInterval(this.fetchProject, this.$store.getters.refreshDelay * 1000);
   },
   beforeDestroy() {
     clearInterval(this.interval);
@@ -76,10 +66,9 @@ export default {
       this.isFetching = true;
       // console.log(`Checking update - ${this.project.path_with_namespace}`);
       this.$store.dispatch('handleProjectLoad', this.project)
-        .then(() => this.isFetching = false);
-    },
-    openPipeline(pipeline) {
-      window.open(`${this.project.web_url}/pipelines/${pipeline.id}`, '_blank');
+        .then(() => {
+          this.isFetching = false;
+        });
     },
   },
 };
@@ -90,9 +79,5 @@ export default {
 .list__tile {
   height: 100% !important;
   padding: 1em;
-}
-
-.chip .chip__content{
-  cursor: pointer;
 }
 </style>
