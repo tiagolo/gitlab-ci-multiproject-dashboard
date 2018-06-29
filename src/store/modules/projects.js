@@ -18,9 +18,9 @@ const getters = {
   gitlab_project_query(state) {
     return Object.keys(state._gitlab_query_params).reduce((previousValue, currentValue) => {
       if (!previousValue.match('=')) {
-        previousValue = `${previousValue}=${state._gitlab_query_params[ previousValue ]}`;
+        previousValue = `${previousValue}=${state._gitlab_query_params[previousValue]}`;
       }
-      return `${previousValue}&${currentValue}=${state._gitlab_query_params[ currentValue ]}`;
+      return `${previousValue}&${currentValue}=${state._gitlab_query_params[currentValue]}`;
     });
   },
   getAvailableProjects: state => state.availableProjects,
@@ -32,10 +32,14 @@ const mutations = {
     Vue.set(state._gitlab_query_params, 'search', search);
   },
   setSelectedProjects(state, val) {
-    val.forEach((project) => {
-      const currentProject = state.selectedProjects.find(p => p.id === project.id);
-      if (currentProject) project.pipelines = currentProject.pipelines;
-      else if (!project.pipelines) project.pipelines = {};
+    val.forEach((project, index) => {
+      if (project) {
+        const currentProject = state.selectedProjects.find(p => p.id === project.id);
+        if (currentProject) project.pipelines = currentProject.pipelines;
+        else if (!project.pipelines) project.pipelines = {};
+      } else {
+        val[index] = state.selectedProjects[index];
+      }
     });
     state.selectedProjects = val;
   },
@@ -54,7 +58,7 @@ const mutations = {
   },
   setProjectPipeline(state, payload) {
     const index = state.selectedProjects.findIndex(project => project.id === payload.project.id);
-    Vue.set(state.selectedProjects[ index ].pipelines, payload.prop, payload.json);
+    Vue.set(state.selectedProjects[index].pipelines, payload.prop, payload.json);
   },
 };
 
@@ -66,7 +70,7 @@ const actions = {
   fetchAvailableProjects({ state, rootGetters, commit }, search) {
     if (!search || search.length >= 3) {
       commit('setSearch', search);
-      let url = `${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`;
+      const url = `${rootGetters.gitlabUrl}/api/v4/projects?${getters.gitlab_project_query(state)}&private_token=${rootGetters.gitlabToken}`;
       console.log(url);
       return fetch(url)
         .then(response => response.json())
@@ -75,7 +79,7 @@ const actions = {
             commit('setAvailableProjects', json);
           }
         });
-    };
+    }
   },
   handleClearSelectedProjects({ commit }) {
     commit('clearSelectedProjects');
@@ -117,7 +121,7 @@ const actions = {
         }
       });
 
-    return Promise.all([ fetchBranches, fetchTags, fetchEnvironments, fetchVariables ]);
+    return Promise.all([fetchBranches, fetchTags, fetchEnvironments, fetchVariables]);
   },
   handleRemoveProject({ commit }, project) {
     commit('removeProject', project);
