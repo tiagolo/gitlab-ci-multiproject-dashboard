@@ -13,10 +13,14 @@ export default {
   props: {
     project: {},
     pipeline: {},
+    objecttype: {
+      type: String,
+      default: 'pipelines',
+    },
   },
   methods: {
     openPipeline() {
-      window.open(`${this.project.web_url}/pipelines/${this.pipeline.id}`, '_blank');
+      window.open(`${this.project.web_url}/${this.objecttype}/${this.pipeline.id}`, '_blank');
     },
   },
 };

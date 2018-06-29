@@ -3,8 +3,8 @@
     <v-card color="blue-grey darken-3" class="white--text flexcard" height="100%">
       <v-progress-linear :indeterminate="isFetching"
                          color="purple" background-opacity="0"
-                         height="5" class="pt-0 mt-0"/>
-      <v-card-title primary-title>
+                         height="6" class="py-0 my-0"/>
+      <v-card-title primary-title class="pt-2">
         <div>
           <h2 class="headline d-block">{{ project.name }}</h2>
           <div>{{ project.path_with_namespace }}</div>
@@ -13,8 +13,25 @@
       </v-card-title>
       <v-card-actions class="grow" v-if="project.pipelines">
         <div v-if="project.pipelines.branches">
+          <h3 class="subheading">Branches</h3>
           <PipelineStatus v-for="pipeline in project.pipelines.branches"
                           :key="pipeline.id" :pipeline="pipeline"
+                          :project="project"/>
+        </div>
+      </v-card-actions>
+      <v-card-actions class="grow" v-if="project.pipelines">
+        <div v-if="project.pipelines.tags">
+          <h3 class="subheading">Tags</h3>
+          <PipelineStatus v-for="pipeline in project.pipelines.tags"
+                          :key="pipeline.id" :pipeline="pipeline"
+                          :project="project"/>
+        </div>
+      </v-card-actions>
+      <v-card-actions class="grow" v-if="project.pipelines">
+        <div v-if="project.pipelines.environments">
+          <h3 class="subheading">Environments</h3>
+          <PipelineStatus v-for="pipeline in project.pipelines.environments"
+                          :key="pipeline.id" :pipeline="pipeline" objecttype="environments"
                           :project="project"/>
         </div>
       </v-card-actions>
