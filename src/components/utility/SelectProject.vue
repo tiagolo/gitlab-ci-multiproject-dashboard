@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'SelectProject',
@@ -103,18 +103,21 @@ export default {
   watch: {
     ux_sheet(val) {
       if (val) {
-        this.ux_isFetching = true;
-        this.fetchAvailableProjects().then(() => {
-          this.ux_isFetching = false;
-        },
-        );
+        this.fetchAvailableProjects(val);
       }
+    },
+    search(val) {
+      this.fetchAvailableProjects(val);
     },
   },
   methods: {
-    ...mapActions([
-      'fetchAvailableProjects',
-    ]),
+    fetchAvailableProjects() {
+      if (!this.search) this.search = '';
+      this.ux_isFetching = true;
+      this.$store.dispatch('fetchAvailableProjects', this.search).then(() => {
+        this.ux_isFetching = false;
+      });
+    },
     uxToggleSearch() {
       this.ux_isSearchEnabled = !this.ux_isSearchEnabled;
       if (!this.ux_isSearchEnabled) this.search = '';
