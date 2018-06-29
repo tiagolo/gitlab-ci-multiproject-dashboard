@@ -90,6 +90,15 @@ const actions = {
         }
       });
 
+    const fetchEnvironments = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
+      + `${project.id}/environments?private_token=${rootGetters.gitlabToken}`)
+      .then(response => response.json())
+      .then((json) => {
+        if (json.length) {
+          // commit('setProjectPipeline', { project, json, prop: 'environments' });
+        }
+      });
+
     const fetchVariables = fetch(`${rootGetters.gitlabUrl}/api/v4/projects/`
       + `${project.id}/variables?private_token=${rootGetters.gitlabToken}`)
       .then(response => response.json())
@@ -99,7 +108,8 @@ const actions = {
         }
       });
 
-    return Promise.all([fetchBranches, fetchTags, fetchVariables]);
+
+    return Promise.all([fetchBranches, fetchTags, fetchEnvironments, fetchVariables]);
   },
   handleRemoveProject({ commit }, project) {
     commit('removeProject', project);
