@@ -1,6 +1,7 @@
 # gitlab-multiproject-dashboard
 
 > Gitlab-CI Dashboard for Multi Module Projects
+DEVOPS-9 - Teste de integração com o Jira
 
 ## Build Setup
 
